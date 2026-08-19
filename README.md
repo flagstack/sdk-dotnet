@@ -27,6 +27,10 @@ Feature evaluations should normally happen locally inside the application proces
 
 The SDK should remain lightweight, safe for long-running server applications and straightforward to integrate with standard .NET dependency injection.
 
+## Contributing
+
+Organisation-wide contribution guidelines are maintained in [`flagstack/.github`](https://github.com/flagstack/.github). FlagStack uses a linear Git history and integrates pull requests by rebase only.
+
 ## Related repositories
 
 - [FlagStack](https://github.com/flagstack/flagstack)
@@ -34,6 +38,6 @@ The SDK should remain lightweight, safe for long-running server applications and
 - [JavaScript / TypeScript SDK](https://github.com/flagstack/sdk-js)
 - [Go SDK](https://github.com/flagstack/sdk-go)
 
-## License
+## Licence
 
-A license will be selected before the first public release.
+This SDK is licensed under the **Apache License 2.0**. See [`LICENSE`](LICENSE).
