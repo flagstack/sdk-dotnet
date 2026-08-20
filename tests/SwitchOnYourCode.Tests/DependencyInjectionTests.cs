@@ -1,8 +1,8 @@
-using FlagStack.Extensions.DependencyInjection;
+using SwitchOnYourCode.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace FlagStack.Tests;
+namespace SwitchOnYourCode.Tests;
 
 public sealed class DependencyInjectionTests
 {
@@ -12,16 +12,16 @@ public sealed class DependencyInjectionTests
         using var http = new HttpClient(new HttpTestHandler((_, _) =>
             Task.FromResult(HttpTestHandler.Json(TestConfiguration.BooleanConfiguration(true)))));
         var services = new ServiceCollection();
-        services.AddFlagStack(options =>
+        services.AddSwitchOnYourCode(options =>
         {
             options.BaseUrl = "https://flags.example.com";
-            options.ServerKey = "fs_server_test";
+            options.ServerKey = "syoc_server_test";
             options.HttpClient = http;
             options.AutoPoll = false;
         });
         await using var provider = services.BuildServiceProvider();
-        var client = provider.GetRequiredService<FlagStackClient>();
-        Assert.Same(client, provider.GetRequiredService<FlagStackClient>());
+        var client = provider.GetRequiredService<SwitchOnYourCodeClient>();
+        Assert.Same(client, provider.GetRequiredService<SwitchOnYourCodeClient>());
         var hosted = provider.GetServices<IHostedService>().Single();
 
         await hosted.StartAsync(CancellationToken.None);

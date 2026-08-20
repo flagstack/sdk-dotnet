@@ -2,9 +2,9 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
-public sealed class FlagStackClientOptions
+public sealed class SwitchOnYourCodeClientOptions
 {
     public required string BaseUrl { get; init; }
     public required string ServerKey { get; init; }
@@ -12,7 +12,7 @@ public sealed class FlagStackClientOptions
     public TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(30);
 }
 
-public sealed class FlagStackClient : IAsyncDisposable, IDisposable
+public sealed class SwitchOnYourCodeClient : IAsyncDisposable, IDisposable
 {
     private const int MaxConfigurationBytes = 10 * 1024 * 1024;
     private readonly Uri _baseUri;
@@ -21,7 +21,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
     private readonly bool _ownsHttpClient;
     private readonly TimeSpan _pollInterval;
     private readonly object _stateLock = new();
-    private FlagStackConfiguration? _configuration;
+    private SwitchOnYourCodeConfiguration? _configuration;
     private Dictionary<string, FeatureFlag> _flags = new(StringComparer.Ordinal);
     private string? _etag;
     private CancellationTokenSource? _pollCancellation;
@@ -29,20 +29,20 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
     private bool _disposed;
 
-    public FlagStackClient(FlagStackClientOptions options)
+    public SwitchOnYourCodeClient(SwitchOnYourCodeClientOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         var baseUrl = options.BaseUrl.Trim().TrimEnd('/');
         if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri)
             || (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
         {
-            throw new ArgumentException("FlagStack BaseUrl must be an absolute http(s) URL.", nameof(options));
+            throw new ArgumentException("SwitchOnYourCode BaseUrl must be an absolute http(s) URL.", nameof(options));
         }
         _baseUri = baseUri;
 
         _serverKey = options.ServerKey?.Trim() ?? string.Empty;
-        if (!_serverKey.StartsWith("fs_server_", StringComparison.Ordinal))
-            throw new ArgumentException(".NET SDK requires a FlagStack server key (fs_server_...).", nameof(options));
+        if (!_serverKey.StartsWith("syoc_server_", StringComparison.Ordinal))
+            throw new ArgumentException(".NET SDK requires a SwitchOnYourCode server key (syoc_server_...).", nameof(options));
         if (options.PollInterval <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(options), "PollInterval must be positive.");
 
@@ -58,7 +58,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         }
     }
 
-    public event Action<FlagStackConfiguration>? ConfigurationChanged;
+    public event Action<SwitchOnYourCodeConfiguration>? ConfigurationChanged;
     public event Action<Exception>? PollingError;
 
     public bool IsReady
@@ -71,7 +71,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         get { lock (_stateLock) return _etag; }
     }
 
-    public FlagStackConfiguration? Configuration
+    public SwitchOnYourCodeConfiguration? Configuration
     {
         get
         {
@@ -80,9 +80,9 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         }
     }
 
-    public static async Task<FlagStackClient> CreateAndWaitAsync(FlagStackClientOptions options, bool startPolling = false, CancellationToken cancellationToken = default)
+    public static async Task<SwitchOnYourCodeClient> CreateAndWaitAsync(SwitchOnYourCodeClientOptions options, bool startPolling = false, CancellationToken cancellationToken = default)
     {
-        var client = new FlagStackClient(options);
+        var client = new SwitchOnYourCodeClient(options);
         try
         {
             await client.RefreshAsync(cancellationToken).ConfigureAwait(false);
@@ -114,15 +114,15 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
             if (response.StatusCode == HttpStatusCode.NotModified)
             {
                 var existing = Configuration;
-                if (existing is null) throw new FlagStackConfigurationException("FlagStack returned 304 before any configuration was loaded.");
+                if (existing is null) throw new SwitchOnYourCodeConfigurationException("SwitchOnYourCode returned 304 before any configuration was loaded.");
                 return new RefreshResult(false, existing);
             }
             if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
-                throw new FlagStackAuthenticationException($"FlagStack SDK authentication failed with HTTP {(int)response.StatusCode}.");
+                throw new SwitchOnYourCodeAuthenticationException($"SwitchOnYourCode SDK authentication failed with HTTP {(int)response.StatusCode}.");
             if (!response.IsSuccessStatusCode)
-                throw new FlagStackHttpException((int)response.StatusCode, $"FlagStack configuration request failed with HTTP {(int)response.StatusCode}.");
+                throw new SwitchOnYourCodeHttpException((int)response.StatusCode, $"SwitchOnYourCode configuration request failed with HTTP {(int)response.StatusCode}.");
             if (response.Content.Headers.ContentLength is > MaxConfigurationBytes)
-                throw new FlagStackConfigurationException("FlagStack configuration response exceeds 10 MiB.");
+                throw new SwitchOnYourCodeConfigurationException("SwitchOnYourCode configuration response exceeds 10 MiB.");
 
             var payload = await ReadLimitedAsync(response.Content, cancellationToken).ConfigureAwait(false);
             var configuration = ConfigurationParser.Parse(payload);
@@ -155,7 +155,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
         lock (_stateLock)
         {
-            if (_pollTask is { IsCompleted: false }) throw new InvalidOperationException("FlagStack polling is already running.");
+            if (_pollTask is { IsCompleted: false }) throw new InvalidOperationException("SwitchOnYourCode polling is already running.");
             _pollCancellation?.Dispose();
             _pollCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _pollTask = PollAsync(_pollCancellation.Token);
@@ -186,7 +186,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         {
             if (_configuration is null || !_flags.TryGetValue(flagKey, out var flag)) return null;
             return new FeatureFlagInfo(flag.Id, flag.Key, flag.Kind, flag.Enabled, flag.Revision,
-                new FlagStackEnvironment { Id = _configuration.Environment.Id, Key = _configuration.Environment.Key });
+                new SwitchOnYourCodeEnvironment { Id = _configuration.Environment.Id, Key = _configuration.Environment.Key });
         }
     }
 
@@ -206,7 +206,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         {
             var value = raw.Value.Deserialize<T>(ConfigurationParser.JsonOptions);
             if (value is null && fallback is not null)
-                return new EvaluationDetails<T>(fallback, "default", EvaluationReason.Error, raw.RuleId, EvaluationErrorCode.TypeMismatch, "FlagStack JSON value could not be converted to the requested type.");
+                return new EvaluationDetails<T>(fallback, "default", EvaluationReason.Error, raw.RuleId, EvaluationErrorCode.TypeMismatch, "SwitchOnYourCode JSON value could not be converted to the requested type.");
             return new EvaluationDetails<T>(value!, raw.Variant, raw.Reason, raw.RuleId);
         }
         catch (JsonException exception)
@@ -229,7 +229,7 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         List<Segment> segments;
         lock (_stateLock)
         {
-            if (_configuration is null) return RawError(EvaluationErrorCode.ProviderNotReady, "FlagStack client has no configuration.");
+            if (_configuration is null) return RawError(EvaluationErrorCode.ProviderNotReady, "SwitchOnYourCode client has no configuration.");
             if (!_flags.TryGetValue(flagKey, out flag)) return RawError(EvaluationErrorCode.FlagNotFound, $"Feature flag '{flagKey}' was not found.");
             if (expectedKind is not null && flag.Kind != expectedKind) return RawError(EvaluationErrorCode.TypeMismatch, $"Feature flag '{flagKey}' is {flag.Kind}, not {expectedKind}.");
             environmentId = _configuration.Environment.Id;
@@ -271,13 +271,13 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
         {
             var read = await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
             if (read == 0) break;
-            if (memory.Length + read > MaxConfigurationBytes) throw new FlagStackConfigurationException("FlagStack configuration response exceeds 10 MiB.");
+            if (memory.Length + read > MaxConfigurationBytes) throw new SwitchOnYourCodeConfigurationException("SwitchOnYourCode configuration response exceeds 10 MiB.");
             memory.Write(buffer, 0, read);
         }
         return memory.ToArray();
     }
 
-    private static bool ConfigurationsEqual(FlagStackConfiguration left, FlagStackConfiguration right)
+    private static bool ConfigurationsEqual(SwitchOnYourCodeConfiguration left, SwitchOnYourCodeConfiguration right)
     {
         var leftJson = JsonSerializer.SerializeToUtf8Bytes(left, ConfigurationParser.JsonOptions);
         var rightJson = JsonSerializer.SerializeToUtf8Bytes(right, ConfigurationParser.JsonOptions);
