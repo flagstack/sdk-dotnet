@@ -106,8 +106,9 @@ public sealed class ClientTests
         var snapshots = new ConcurrentBag<FlagStackConfiguration>();
         client.ConfigurationChanged += snapshots.Add;
         var refreshes = Enumerable.Range(0, 20).Select(_ => client.RefreshAsync()).ToArray();
-        var evaluations = Enumerable.Range(0, 200).Select(_ => Task.Run(() =>
+        var evaluations = Enumerable.Range(0, 200).Select(index => Task.Run(() =>
         {
+            _ = index;
             _ = client.GetBooleanValue("new-checkout", false, new EvaluationContext("user-123"));
             _ = client.Configuration;
             _ = client.GetFlagInfo("new-checkout");
