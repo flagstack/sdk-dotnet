@@ -1,10 +1,10 @@
 using System.Text;
 
-namespace FlagStack.Tests;
+namespace SwitchOnYourCode.Tests;
 
 internal static class TestConfiguration
 {
-    internal static FlagStackConfiguration Parse(string json) =>
+    internal static SwitchOnYourCodeConfiguration Parse(string json) =>
         ConfigurationParser.Parse(Encoding.UTF8.GetBytes(json));
 
     internal static string BooleanConfiguration(bool enabled = true, long revision = 1) => $$$"""

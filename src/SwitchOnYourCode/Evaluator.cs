@@ -4,15 +4,15 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
 internal static class Evaluator
 {
     internal static int Bucket(string environmentId, string flagId, string bucketValue)
     {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes($"flagstack-v1\0{environmentId}\0{flagId}\0{bucketValue}"));
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes($"switchonyourcode-v1\0{environmentId}\0{flagId}\0{bucketValue}"));
         var prefix = ((uint)bytes[0] << 24) | ((uint)bytes[1] << 16) | ((uint)bytes[2] << 8) | bytes[3];
-        return (int)(prefix % FlagStackConstants.BucketScale);
+        return (int)(prefix % SwitchOnYourCodeConstants.BucketScale);
     }
 
     internal static RawEvaluationDetails Evaluate(

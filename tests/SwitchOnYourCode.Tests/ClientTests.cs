@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
 
-namespace FlagStack.Tests;
+namespace SwitchOnYourCode.Tests;
 
 public sealed class ClientTests
 {
@@ -14,16 +14,16 @@ public sealed class ClientTests
         {
             Interlocked.Increment(ref requests);
             Assert.Equal("Bearer", request.Headers.Authorization?.Scheme);
-            Assert.Equal("fs_server_test", request.Headers.Authorization?.Parameter);
+            Assert.Equal("syoc_server_test", request.Headers.Authorization?.Parameter);
             if (request.Headers.IfNoneMatch.Any(tag => tag.Tag == "\"v1\""))
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotModified));
             return Task.FromResult(HttpTestHandler.Json(TestConfiguration.BooleanConfiguration(true), "\"v1\""));
         }));
 
-        await using var client = await FlagStackClient.CreateAndWaitAsync(new FlagStackClientOptions
+        await using var client = await SwitchOnYourCodeClient.CreateAndWaitAsync(new SwitchOnYourCodeClientOptions
         {
             BaseUrl = "https://flags.example.com",
-            ServerKey = "fs_server_test",
+            ServerKey = "syoc_server_test",
             HttpClient = http,
         });
 
@@ -39,9 +39,9 @@ public sealed class ClientTests
     {
         var invalid = false;
         using var http = new HttpClient(new HttpTestHandler((_, _) => Task.FromResult(HttpTestHandler.Json(invalid ? "{\"schema_version\":99}" : TestConfiguration.BooleanConfiguration(true)))));
-        await using var client = await FlagStackClient.CreateAndWaitAsync(Options(http));
+        await using var client = await SwitchOnYourCodeClient.CreateAndWaitAsync(Options(http));
         invalid = true;
-        await Assert.ThrowsAsync<FlagStackConfigurationException>(() => client.RefreshAsync());
+        await Assert.ThrowsAsync<SwitchOnYourCodeConfigurationException>(() => client.RefreshAsync());
         Assert.True(client.GetBooleanValue("new-checkout", false));
     }
 
@@ -49,15 +49,15 @@ public sealed class ClientTests
     public async Task AuthenticationFailureIsTyped()
     {
         using var http = new HttpClient(new HttpTestHandler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized))));
-        await using var client = new FlagStackClient(Options(http));
-        await Assert.ThrowsAsync<FlagStackAuthenticationException>(() => client.RefreshAsync());
+        await using var client = new SwitchOnYourCodeClient(Options(http));
+        await Assert.ThrowsAsync<SwitchOnYourCodeAuthenticationException>(() => client.RefreshAsync());
     }
 
     [Fact]
     public async Task TypedFallbacksAndRawErrorsAreSafeBeforeReady()
     {
         using var http = new HttpClient(new HttpTestHandler((_, _) => throw new InvalidOperationException()));
-        await using var client = new FlagStackClient(Options(http));
+        await using var client = new SwitchOnYourCodeClient(Options(http));
         var details = client.GetBooleanDetails("missing", true);
         Assert.True(details.Value);
         Assert.Equal(EvaluationErrorCode.ProviderNotReady, details.ErrorCode);
@@ -77,10 +77,10 @@ public sealed class ClientTests
             if (call == 1) return Task.FromResult(HttpTestHandler.Json(TestConfiguration.BooleanConfiguration(true)));
             throw new HttpRequestException("offline");
         }));
-        await using var client = await FlagStackClient.CreateAndWaitAsync(new FlagStackClientOptions
+        await using var client = await SwitchOnYourCodeClient.CreateAndWaitAsync(new SwitchOnYourCodeClientOptions
         {
             BaseUrl = "https://flags.example.com",
-            ServerKey = "fs_server_test",
+            ServerKey = "syoc_server_test",
             HttpClient = http,
             PollInterval = TimeSpan.FromMilliseconds(5),
         });
@@ -102,8 +102,8 @@ public sealed class ClientTests
             var current = Interlocked.Increment(ref version);
             return HttpTestHandler.Json(TestConfiguration.BooleanConfiguration(current % 2 == 1), $"\"v{current}\"");
         }));
-        await using var client = await FlagStackClient.CreateAndWaitAsync(Options(http));
-        var snapshots = new ConcurrentBag<FlagStackConfiguration>();
+        await using var client = await SwitchOnYourCodeClient.CreateAndWaitAsync(Options(http));
+        var snapshots = new ConcurrentBag<SwitchOnYourCodeConfiguration>();
         client.ConfigurationChanged += snapshots.Add;
         var refreshes = Enumerable.Range(0, 20).Select(_ => client.RefreshAsync()).ToArray();
         var evaluations = Enumerable.Range(0, 200).Select(index => Task.Run(() =>
@@ -118,10 +118,10 @@ public sealed class ClientTests
         Assert.NotEmpty(snapshots);
     }
 
-    private static FlagStackClientOptions Options(HttpClient http) => new()
+    private static SwitchOnYourCodeClientOptions Options(HttpClient http) => new()
     {
         BaseUrl = "https://flags.example.com",
-        ServerKey = "fs_server_test",
+        ServerKey = "syoc_server_test",
         HttpClient = http,
     };
 }

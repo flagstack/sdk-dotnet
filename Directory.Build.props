@@ -8,12 +8,12 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <Authors>FlagStack</Authors>
-    <Company>FlagStack</Company>
-    <RepositoryUrl>https://github.com/flagstack/sdk-dotnet</RepositoryUrl>
+    <Authors>Switch On Your Code</Authors>
+    <Company>Switch On Your Code</Company>
+    <RepositoryUrl>https://github.com/switchonyourcode/sdk-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/flagstack/flagstack</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/switchonyourcode/switchonyourcode</PackageProjectUrl>
     <PackageVersion>0.0.0</PackageVersion>
   </PropertyGroup>
 </Project>

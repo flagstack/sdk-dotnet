@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
-public static class FlagStackConstants
+public static class SwitchOnYourCodeConstants
 {
     public const int SchemaVersion = 1;
     public const int BucketScale = 100_000;
@@ -53,13 +53,13 @@ public sealed record EvaluationDetails<T>(
     EvaluationErrorCode ErrorCode = EvaluationErrorCode.None,
     string? ErrorMessage = null);
 
-public sealed class FlagStackConfiguration
+public sealed class SwitchOnYourCodeConfiguration
 {
     [JsonPropertyName("schema_version")]
     public int SchemaVersion { get; set; }
 
     [JsonPropertyName("environment")]
-    public FlagStackEnvironment Environment { get; set; } = new();
+    public SwitchOnYourCodeEnvironment Environment { get; set; } = new();
 
     [JsonPropertyName("flags")]
     public List<FeatureFlag> Flags { get; set; } = [];
@@ -68,7 +68,7 @@ public sealed class FlagStackConfiguration
     public List<Segment> Segments { get; set; } = [];
 }
 
-public sealed class FlagStackEnvironment
+public sealed class SwitchOnYourCodeEnvironment
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
@@ -194,9 +194,9 @@ public sealed record FeatureFlagInfo(
     string Kind,
     bool Enabled,
     long Revision,
-    FlagStackEnvironment Environment);
+    SwitchOnYourCodeEnvironment Environment);
 
-public sealed record RefreshResult(bool Modified, FlagStackConfiguration Configuration);
+public sealed record RefreshResult(bool Modified, SwitchOnYourCodeConfiguration Configuration);
 
 internal sealed record RawEvaluationDetails(
     JsonElement Value,

@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
-public static class FlagStackEvaluator
+public static class SwitchOnYourCodeEvaluator
 {
     public static int Bucket(string environmentId, string flagId, string bucketValue) =>
         Evaluator.Bucket(environmentId, flagId, bucketValue);

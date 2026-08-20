@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
 internal static class ConfigurationValidator
 {
@@ -12,21 +12,21 @@ internal static class ConfigurationValidator
         "semver_less_than_or_equal", "in_segment", "not_in_segment",
     ];
 
-    internal static void Validate(FlagStackConfiguration configuration)
+    internal static void Validate(SwitchOnYourCodeConfiguration configuration)
     {
-        if (configuration.SchemaVersion != FlagStackConstants.SchemaVersion)
-            throw new FlagStackConfigurationException($"Unsupported FlagStack schema version {configuration.SchemaVersion}.");
+        if (configuration.SchemaVersion != SwitchOnYourCodeConstants.SchemaVersion)
+            throw new SwitchOnYourCodeConfigurationException($"Unsupported SwitchOnYourCode schema version {configuration.SchemaVersion}.");
         if (configuration.Environment is null || string.IsNullOrWhiteSpace(configuration.Environment.Id) || string.IsNullOrWhiteSpace(configuration.Environment.Key))
-            throw new FlagStackConfigurationException("FlagStack environment id and key are required.");
+            throw new SwitchOnYourCodeConfigurationException("SwitchOnYourCode environment id and key are required.");
         if (configuration.Segments is null || configuration.Flags is null)
-            throw new FlagStackConfigurationException("FlagStack configuration flags and segments must be arrays.");
+            throw new SwitchOnYourCodeConfigurationException("SwitchOnYourCode configuration flags and segments must be arrays.");
 
         var segmentKeys = new HashSet<string>(StringComparer.Ordinal);
         foreach (var segment in configuration.Segments)
         {
             ValidateSegment(segment);
             if (!segmentKeys.Add(segment.Key))
-                throw new FlagStackConfigurationException($"Duplicate segment key '{segment.Key}'.");
+                throw new SwitchOnYourCodeConfigurationException($"Duplicate segment key '{segment.Key}'.");
         }
 
         var flagKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -34,9 +34,9 @@ internal static class ConfigurationValidator
         {
             ValidateFlag(flag, configuration.Environment.Id);
             if (string.IsNullOrWhiteSpace(flag.Key))
-                throw new FlagStackConfigurationException("Flag key is required.");
+                throw new SwitchOnYourCodeConfigurationException("Flag key is required.");
             if (!flagKeys.Add(flag.Key))
-                throw new FlagStackConfigurationException($"Duplicate flag key '{flag.Key}'.");
+                throw new SwitchOnYourCodeConfigurationException($"Duplicate flag key '{flag.Key}'.");
         }
     }
 
@@ -170,8 +170,8 @@ internal static class ConfigurationValidator
                 throw new EvaluationFailure(EvaluationErrorCode.ParseError, "rollout weights must be positive integers");
             total += allocation.Weight;
         }
-        if (total != FlagStackConstants.BucketScale)
-            throw new EvaluationFailure(EvaluationErrorCode.ParseError, $"rollout weights must total {FlagStackConstants.BucketScale}");
+        if (total != SwitchOnYourCodeConstants.BucketScale)
+            throw new EvaluationFailure(EvaluationErrorCode.ParseError, $"rollout weights must total {SwitchOnYourCodeConstants.BucketScale}");
     }
 
     private static void ValidateMatchMode(string match)
