@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  sdk:
+    name: .NET SDK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: latest
+          dotnet-channel: 8.0
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: latest
+          dotnet-channel: 10.0
+
+      - name: Restore
+        run: dotnet restore tests/FlagStack.Tests/FlagStack.Tests.csproj
+
+      - name: Verify formatting
+        run: |
+          dotnet format src/FlagStack/FlagStack.csproj --verify-no-changes --no-restore
+          dotnet format src/FlagStack.Extensions.DependencyInjection/FlagStack.Extensions.DependencyInjection.csproj --verify-no-changes --no-restore
+          dotnet format src/FlagStack.OpenFeature/FlagStack.OpenFeature.csproj --verify-no-changes --no-restore
+          dotnet format tests/FlagStack.Tests/FlagStack.Tests.csproj --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build tests/FlagStack.Tests/FlagStack.Tests.csproj --configuration Release --no-restore
+
+      - name: Test .NET 8
+        run: dotnet run --project tests/FlagStack.Tests/FlagStack.Tests.csproj --framework net8.0 --configuration Release --no-build
+
+      - name: Test .NET 10
+        run: dotnet run --project tests/FlagStack.Tests/FlagStack.Tests.csproj --framework net10.0 --configuration Release --no-build
+
+      - name: Pack native SDK
+        run: dotnet pack src/FlagStack/FlagStack.csproj --configuration Release --no-build --output artifacts
+
+      - name: Pack dependency injection integration
+        run: dotnet pack src/FlagStack.Extensions.DependencyInjection/FlagStack.Extensions.DependencyInjection.csproj --configuration Release --no-build --output artifacts
+
+      - name: Pack OpenFeature integration
+        run: dotnet pack src/FlagStack.OpenFeature/FlagStack.OpenFeature.csproj --configuration Release --no-build --output artifacts
+
+      - name: Verify NuGet packages
+        shell: bash
+        run: test "$(find artifacts -maxdepth 1 -name '*.nupkg' | wc -l)" -eq 3
