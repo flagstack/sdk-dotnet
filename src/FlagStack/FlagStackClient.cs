@@ -32,11 +32,13 @@ public sealed class FlagStackClient : IAsyncDisposable, IDisposable
     public FlagStackClient(FlagStackClientOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        if (!Uri.TryCreate(options.BaseUrl?.Trim().TrimEnd('/'), UriKind.Absolute, out _baseUri)
-            || (_baseUri.Scheme != Uri.UriSchemeHttp && _baseUri.Scheme != Uri.UriSchemeHttps))
+        var baseUrl = options.BaseUrl.Trim().TrimEnd('/');
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri)
+            || (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
         {
             throw new ArgumentException("FlagStack BaseUrl must be an absolute http(s) URL.", nameof(options));
         }
+        _baseUri = baseUri;
 
         _serverKey = options.ServerKey?.Trim() ?? string.Empty;
         if (!_serverKey.StartsWith("fs_server_", StringComparison.Ordinal))
