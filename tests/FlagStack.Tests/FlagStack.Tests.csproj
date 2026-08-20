@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/FlagStack/FlagStack.csproj" />
+    <ProjectReference Include="../../src/FlagStack.OpenFeature/FlagStack.OpenFeature.csproj" />
+    <ProjectReference Include="../../src/FlagStack.Extensions.DependencyInjection/FlagStack.Extensions.DependencyInjection.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="OpenFeature" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+</Project>
