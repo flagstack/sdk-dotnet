@@ -25,32 +25,32 @@ jobs:
             10.0.x
 
       - name: Restore
-        run: dotnet restore tests/FlagStack.Tests/FlagStack.Tests.csproj
+        run: dotnet restore tests/SwitchOnYourCode.Tests/SwitchOnYourCode.Tests.csproj
 
       - name: Verify formatting
         run: |
-          dotnet format src/FlagStack/FlagStack.csproj --verify-no-changes --no-restore
-          dotnet format src/FlagStack.Extensions.DependencyInjection/FlagStack.Extensions.DependencyInjection.csproj --verify-no-changes --no-restore
-          dotnet format src/FlagStack.OpenFeature/FlagStack.OpenFeature.csproj --verify-no-changes --no-restore
-          dotnet format tests/FlagStack.Tests/FlagStack.Tests.csproj --verify-no-changes --no-restore
+          dotnet format src/SwitchOnYourCode/SwitchOnYourCode.csproj --verify-no-changes --no-restore
+          dotnet format src/SwitchOnYourCode.Extensions.DependencyInjection/SwitchOnYourCode.Extensions.DependencyInjection.csproj --verify-no-changes --no-restore
+          dotnet format src/SwitchOnYourCode.OpenFeature/SwitchOnYourCode.OpenFeature.csproj --verify-no-changes --no-restore
+          dotnet format tests/SwitchOnYourCode.Tests/SwitchOnYourCode.Tests.csproj --verify-no-changes --no-restore
 
       - name: Build
-        run: dotnet build tests/FlagStack.Tests/FlagStack.Tests.csproj --configuration Release --no-restore
+        run: dotnet build tests/SwitchOnYourCode.Tests/SwitchOnYourCode.Tests.csproj --configuration Release --no-restore
 
       - name: Test .NET 8
-        run: dotnet run --project tests/FlagStack.Tests/FlagStack.Tests.csproj --framework net8.0 --configuration Release --no-build
+        run: dotnet run --project tests/SwitchOnYourCode.Tests/SwitchOnYourCode.Tests.csproj --framework net8.0 --configuration Release --no-build
 
       - name: Test .NET 10
-        run: dotnet run --project tests/FlagStack.Tests/FlagStack.Tests.csproj --framework net10.0 --configuration Release --no-build
+        run: dotnet run --project tests/SwitchOnYourCode.Tests/SwitchOnYourCode.Tests.csproj --framework net10.0 --configuration Release --no-build
 
       - name: Pack native SDK
-        run: dotnet pack src/FlagStack/FlagStack.csproj --configuration Release --no-build --output artifacts
+        run: dotnet pack src/SwitchOnYourCode/SwitchOnYourCode.csproj --configuration Release --no-build --output artifacts
 
       - name: Pack dependency injection integration
-        run: dotnet pack src/FlagStack.Extensions.DependencyInjection/FlagStack.Extensions.DependencyInjection.csproj --configuration Release --no-build --output artifacts
+        run: dotnet pack src/SwitchOnYourCode.Extensions.DependencyInjection/SwitchOnYourCode.Extensions.DependencyInjection.csproj --configuration Release --no-build --output artifacts
 
       - name: Pack OpenFeature integration
-        run: dotnet pack src/FlagStack.OpenFeature/FlagStack.OpenFeature.csproj --configuration Release --no-build --output artifacts
+        run: dotnet pack src/SwitchOnYourCode.OpenFeature/SwitchOnYourCode.OpenFeature.csproj --configuration Release --no-build --output artifacts
 
       - name: Verify NuGet packages
         shell: bash
