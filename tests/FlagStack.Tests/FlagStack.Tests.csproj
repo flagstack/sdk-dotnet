@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/FlagStack/FlagStack.csproj" />
