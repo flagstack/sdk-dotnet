@@ -79,7 +79,10 @@ public sealed class ClientTests
         }));
         await using var client = await FlagStackClient.CreateAndWaitAsync(new FlagStackClientOptions
         {
-            BaseUrl = "https://flags.example.com", ServerKey = "fs_server_test", HttpClient = http, PollInterval = TimeSpan.FromMilliseconds(5),
+            BaseUrl = "https://flags.example.com",
+            ServerKey = "fs_server_test",
+            HttpClient = http,
+            PollInterval = TimeSpan.FromMilliseconds(5),
         });
         client.PollingError += exception => pollingError.TrySetResult(exception);
         client.StartPolling();
@@ -114,5 +117,10 @@ public sealed class ClientTests
         Assert.NotEmpty(snapshots);
     }
 
-    private static FlagStackClientOptions Options(HttpClient http) => new() { BaseUrl = "https://flags.example.com", ServerKey = "fs_server_test", HttpClient = http };
+    private static FlagStackClientOptions Options(HttpClient http) => new()
+    {
+        BaseUrl = "https://flags.example.com",
+        ServerKey = "fs_server_test",
+        HttpClient = http,
+    };
 }
