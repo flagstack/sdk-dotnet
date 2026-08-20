@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <PackageId>FlagStack</PackageId>
+    <Description>Official .NET SDK for FlagStack feature flags.</Description>
+    <PackageTags>feature-flags;feature-toggles;flagstack</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+</Project>
