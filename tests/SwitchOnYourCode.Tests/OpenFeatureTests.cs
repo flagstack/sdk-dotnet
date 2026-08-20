@@ -1,10 +1,10 @@
-using FlagStack.OpenFeature;
+using SwitchOnYourCode.OpenFeature;
 using OpenFeature;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 using OFContext = OpenFeature.Model.EvaluationContext;
 
-namespace FlagStack.Tests;
+namespace SwitchOnYourCode.Tests;
 
 public sealed class OpenFeatureTests
 {
@@ -20,8 +20,8 @@ public sealed class OpenFeatureTests
         Assert.True(boolean.Value);
         Assert.Equal(Reason.Static, boolean.Reason);
         Assert.Equal("on", boolean.Variant);
-        Assert.Equal("production", boolean.FlagMetadata?.GetString("flagstack.environment"));
-        Assert.Equal("flag-bool", boolean.FlagMetadata?.GetString("flagstack.flag_id"));
+        Assert.Equal("production", boolean.FlagMetadata?.GetString("switchonyourcode.environment"));
+        Assert.Equal("flag-bool", boolean.FlagMetadata?.GetString("switchonyourcode.flag_id"));
 
         var integer = await provider.ResolveIntegerValueAsync("max-items", 0, context);
         Assert.Equal(10, integer.Value);
@@ -88,8 +88,8 @@ public sealed class OpenFeatureTests
         await provider.ShutdownAsync();
     }
 
-    private static FlagStackProvider Provider(HttpClient http) => new(new FlagStackProviderOptions
+    private static SwitchOnYourCodeProvider Provider(HttpClient http) => new(new SwitchOnYourCodeProviderOptions
     {
-        Client = new FlagStackClientOptions { BaseUrl = "https://flags.example.com", ServerKey = "fs_server_test", HttpClient = http },
+        Client = new SwitchOnYourCodeClientOptions { BaseUrl = "https://flags.example.com", ServerKey = "syoc_server_test", HttpClient = http },
     });
 }

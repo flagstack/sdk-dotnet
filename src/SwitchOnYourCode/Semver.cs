@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
 internal static partial class Semver
 {

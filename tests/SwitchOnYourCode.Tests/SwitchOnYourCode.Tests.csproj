@@ -7,9 +7,9 @@
     <NoWarn>$(NoWarn);xUnit1051</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/FlagStack/FlagStack.csproj" />
-    <ProjectReference Include="../../src/FlagStack.OpenFeature/FlagStack.OpenFeature.csproj" />
-    <ProjectReference Include="../../src/FlagStack.Extensions.DependencyInjection/FlagStack.Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="../../src/SwitchOnYourCode/SwitchOnYourCode.csproj" />
+    <ProjectReference Include="../../src/SwitchOnYourCode.OpenFeature/SwitchOnYourCode.OpenFeature.csproj" />
+    <ProjectReference Include="../../src/SwitchOnYourCode.Extensions.DependencyInjection/SwitchOnYourCode.Extensions.DependencyInjection.csproj" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="OpenFeature" />
     <PackageReference Include="xunit.v3" />

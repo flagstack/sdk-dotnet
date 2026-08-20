@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace FlagStack.Tests;
+namespace SwitchOnYourCode.Tests;
 
 internal sealed class HttpTestHandler(
     Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler

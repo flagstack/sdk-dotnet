@@ -6,30 +6,30 @@ using OpenFeature.Model;
 using OFEvaluationContext = OpenFeature.Model.EvaluationContext;
 using OFValue = OpenFeature.Model.Value;
 
-namespace FlagStack.OpenFeature;
+namespace SwitchOnYourCode.OpenFeature;
 
-public sealed class FlagStackProviderOptions
+public sealed class SwitchOnYourCodeProviderOptions
 {
-    public required FlagStackClientOptions Client { get; init; }
+    public required SwitchOnYourCodeClientOptions Client { get; init; }
     public bool AutoPoll { get; init; }
 }
 
-public sealed class FlagStackProvider : FeatureProvider
+public sealed class SwitchOnYourCodeProvider : FeatureProvider
 {
-    private const string ProviderName = "FlagStack";
-    private readonly FlagStackClient _client;
+    private const string ProviderName = "Switch On Your Code";
+    private readonly SwitchOnYourCodeClient _client;
     private readonly bool _autoPoll;
     private bool _initialized;
     private bool _subscribed;
 
-    public FlagStackProvider(FlagStackProviderOptions options)
+    public SwitchOnYourCodeProvider(SwitchOnYourCodeProviderOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        _client = new FlagStackClient(options.Client);
+        _client = new SwitchOnYourCodeClient(options.Client);
         _autoPoll = options.AutoPoll;
     }
 
-    public FlagStackClient Client => _client;
+    public SwitchOnYourCodeClient Client => _client;
     public override Metadata GetMetadata() => new(ProviderName);
 
     public override async Task InitializeAsync(OFEvaluationContext context, CancellationToken cancellationToken = default)
@@ -56,19 +56,19 @@ public sealed class FlagStackProvider : FeatureProvider
     public override Task<ResolutionDetails<bool>> ResolveBooleanValueAsync(string flagKey, bool defaultValue, OFEvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(ToResolution(flagKey, _client.GetBooleanDetails(flagKey, defaultValue, ToFlagStackContext(context))));
+        return Task.FromResult(ToResolution(flagKey, _client.GetBooleanDetails(flagKey, defaultValue, ToSwitchOnYourCodeContext(context))));
     }
 
     public override Task<ResolutionDetails<string>> ResolveStringValueAsync(string flagKey, string defaultValue, OFEvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(ToResolution(flagKey, _client.GetStringDetails(flagKey, defaultValue, ToFlagStackContext(context))));
+        return Task.FromResult(ToResolution(flagKey, _client.GetStringDetails(flagKey, defaultValue, ToSwitchOnYourCodeContext(context))));
     }
 
     public override Task<ResolutionDetails<double>> ResolveDoubleValueAsync(string flagKey, double defaultValue, OFEvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(ToResolution(flagKey, _client.GetNumberDetails(flagKey, defaultValue, ToFlagStackContext(context))));
+        return Task.FromResult(ToResolution(flagKey, _client.GetNumberDetails(flagKey, defaultValue, ToSwitchOnYourCodeContext(context))));
     }
 
     public override Task<ResolutionDetails<int>> ResolveIntegerValueAsync(string flagKey, int defaultValue, OFEvaluationContext? context = null, CancellationToken cancellationToken = default)
@@ -77,21 +77,21 @@ public sealed class FlagStackProvider : FeatureProvider
         var info = _client.GetFlagInfo(flagKey);
         if (info is null)
         {
-            var missing = _client.GetRawDetails(flagKey, ToFlagStackContext(context));
+            var missing = _client.GetRawDetails(flagKey, ToSwitchOnYourCodeContext(context));
             return Task.FromResult(ToResolution(flagKey, defaultValue, missing));
         }
         if (info.Kind != "number")
         {
-            var mismatch = new EvaluationDetails<int>(defaultValue, "default", EvaluationReason.Error, ErrorCode: EvaluationErrorCode.TypeMismatch, ErrorMessage: "FlagStack flag is not a number.");
+            var mismatch = new EvaluationDetails<int>(defaultValue, "default", EvaluationReason.Error, ErrorCode: EvaluationErrorCode.TypeMismatch, ErrorMessage: "SwitchOnYourCode flag is not a number.");
             return Task.FromResult(ToResolution(flagKey, mismatch));
         }
 
-        var raw = _client.GetRawDetails(flagKey, ToFlagStackContext(context));
+        var raw = _client.GetRawDetails(flagKey, ToSwitchOnYourCodeContext(context));
         if (raw.ErrorCode != EvaluationErrorCode.None) return Task.FromResult(ToResolution(flagKey, defaultValue, raw));
         var text = raw.Value.GetRawText();
         if (!decimal.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number) || decimal.Truncate(number) != number || number < int.MinValue || number > int.MaxValue)
         {
-            var error = new EvaluationDetails<int>(defaultValue, "default", EvaluationReason.Error, raw.RuleId, EvaluationErrorCode.TypeMismatch, "FlagStack number is not an exact OpenFeature Int32 value.");
+            var error = new EvaluationDetails<int>(defaultValue, "default", EvaluationReason.Error, raw.RuleId, EvaluationErrorCode.TypeMismatch, "SwitchOnYourCode number is not an exact OpenFeature Int32 value.");
             return Task.FromResult(ToResolution(flagKey, error));
         }
         return Task.FromResult(ToResolution(flagKey, new EvaluationDetails<int>((int)number, raw.Variant, raw.Reason, raw.RuleId)));
@@ -100,12 +100,12 @@ public sealed class FlagStackProvider : FeatureProvider
     public override Task<ResolutionDetails<OFValue>> ResolveStructureValueAsync(string flagKey, OFValue defaultValue, OFEvaluationContext? context = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var raw = _client.GetRawDetails(flagKey, ToFlagStackContext(context));
+        var raw = _client.GetRawDetails(flagKey, ToSwitchOnYourCodeContext(context));
         var info = _client.GetFlagInfo(flagKey);
         if (raw.ErrorCode != EvaluationErrorCode.None) return Task.FromResult(ToResolution(flagKey, defaultValue, raw));
         if (info?.Kind != "json" || raw.Value.ValueKind is not (JsonValueKind.Object or JsonValueKind.Array))
         {
-            var error = new EvaluationDetails<OFValue>(defaultValue, "default", EvaluationReason.Error, raw.RuleId, EvaluationErrorCode.TypeMismatch, "FlagStack value is not an OpenFeature structure or list.");
+            var error = new EvaluationDetails<OFValue>(defaultValue, "default", EvaluationReason.Error, raw.RuleId, EvaluationErrorCode.TypeMismatch, "SwitchOnYourCode value is not an OpenFeature structure or list.");
             return Task.FromResult(ToResolution(flagKey, error));
         }
         return Task.FromResult(ToResolution(flagKey, new EvaluationDetails<OFValue>(ToOpenFeatureValue(raw.Value), raw.Variant, raw.Reason, raw.RuleId)));
@@ -118,7 +118,7 @@ public sealed class FlagStackProvider : FeatureProvider
         _subscribed = true;
     }
 
-    private void OnConfigurationChanged(FlagStackConfiguration configuration)
+    private void OnConfigurationChanged(SwitchOnYourCodeConfiguration configuration)
     {
         if (!_initialized) return;
         EventChannel.Writer.TryWrite(new ProviderEventPayload
@@ -126,7 +126,7 @@ public sealed class FlagStackProvider : FeatureProvider
             Type = ProviderEventTypes.ProviderConfigurationChanged,
             ProviderName = ProviderName,
             FlagsChanged = configuration.Flags.Select(flag => flag.Key).ToList(),
-            Message = "FlagStack configuration changed.",
+            Message = "SwitchOnYourCode configuration changed.",
             EventMetadata = new ImmutableMetadata(new Dictionary<string, object>
             {
                 ["environment"] = configuration.Environment.Key,
@@ -147,13 +147,13 @@ public sealed class FlagStackProvider : FeatureProvider
         var info = _client.GetFlagInfo(flagKey);
         if (info is not null)
         {
-            metadata["flagstack.environment"] = info.Environment.Key;
-            metadata["flagstack.environment_id"] = info.Environment.Id;
-            metadata["flagstack.flag_id"] = info.Id;
-            metadata["flagstack.revision"] = (double)info.Revision;
-            metadata["flagstack.enabled"] = info.Enabled;
+            metadata["switchonyourcode.environment"] = info.Environment.Key;
+            metadata["switchonyourcode.environment_id"] = info.Environment.Id;
+            metadata["switchonyourcode.flag_id"] = info.Id;
+            metadata["switchonyourcode.revision"] = (double)info.Revision;
+            metadata["switchonyourcode.enabled"] = info.Enabled;
         }
-        if (!string.IsNullOrEmpty(ruleId)) metadata["flagstack.rule_id"] = ruleId;
+        if (!string.IsNullOrEmpty(ruleId)) metadata["switchonyourcode.rule_id"] = ruleId;
         return new ImmutableMetadata(metadata);
     }
 
@@ -180,16 +180,16 @@ public sealed class FlagStackProvider : FeatureProvider
         _ => Reason.Unknown,
     };
 
-    private static global::FlagStack.EvaluationContext ToFlagStackContext(OFEvaluationContext? context)
+    private static global::SwitchOnYourCode.EvaluationContext ToSwitchOnYourCodeContext(OFEvaluationContext? context)
     {
-        if (context is null) return global::FlagStack.EvaluationContext.Empty;
+        if (context is null) return global::SwitchOnYourCode.EvaluationContext.Empty;
         var attributes = new Dictionary<string, object?>(StringComparer.Ordinal);
         foreach (var pair in context.AsDictionary())
         {
             if (pair.Key == "targetingKey") continue;
             attributes[pair.Key] = FromOpenFeatureValue(pair.Value);
         }
-        return new global::FlagStack.EvaluationContext(context.TargetingKey, attributes);
+        return new global::SwitchOnYourCode.EvaluationContext(context.TargetingKey, attributes);
     }
 
     private static object? FromOpenFeatureValue(OFValue value)

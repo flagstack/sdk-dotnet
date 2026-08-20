@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace FlagStack;
+namespace SwitchOnYourCode;
 
 internal static class RegexCompatibility
 {

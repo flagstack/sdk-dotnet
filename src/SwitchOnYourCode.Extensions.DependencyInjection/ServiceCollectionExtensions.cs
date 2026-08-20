@@ -2,9 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
-namespace FlagStack.Extensions.DependencyInjection;
+namespace SwitchOnYourCode.Extensions.DependencyInjection;
 
-public sealed class FlagStackServiceOptions
+public sealed class SwitchOnYourCodeServiceOptions
 {
     public string BaseUrl { get; set; } = string.Empty;
     public string ServerKey { get; set; } = string.Empty;
@@ -15,20 +15,20 @@ public sealed class FlagStackServiceOptions
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddFlagStack(
+    public static IServiceCollection AddSwitchOnYourCode(
         this IServiceCollection services,
-        Action<FlagStackServiceOptions> configure)
+        Action<SwitchOnYourCodeServiceOptions> configure)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configure);
 
-        var options = new FlagStackServiceOptions();
+        var options = new SwitchOnYourCodeServiceOptions();
         configure(options);
         services.TryAddSingleton(options);
         services.TryAddSingleton(provider =>
         {
-            var configured = provider.GetRequiredService<FlagStackServiceOptions>();
-            return new FlagStackClient(new FlagStackClientOptions
+            var configured = provider.GetRequiredService<SwitchOnYourCodeServiceOptions>();
+            return new SwitchOnYourCodeClient(new SwitchOnYourCodeClientOptions
             {
                 BaseUrl = configured.BaseUrl,
                 ServerKey = configured.ServerKey,
@@ -36,14 +36,14 @@ public static class ServiceCollectionExtensions
                 HttpClient = configured.HttpClient,
             });
         });
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, FlagStackHostedService>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, SwitchOnYourCodeHostedService>());
         return services;
     }
 }
 
-internal sealed class FlagStackHostedService(
-    FlagStackClient client,
-    FlagStackServiceOptions options) : IHostedService
+internal sealed class SwitchOnYourCodeHostedService(
+    SwitchOnYourCodeClient client,
+    SwitchOnYourCodeServiceOptions options) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
