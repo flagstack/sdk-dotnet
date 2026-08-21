@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <PackageId>SwitchOnYourCode.Extensions.DependencyInjection</PackageId>
-    <Description>Dependency injection and hosted-service integration for the SwitchOnYourCode .NET SDK.</Description>
+    <Description>Dependency injection and hosted-service integration for the Switch On Your Code .NET SDK.</Description>
     <PackageTags>feature-flags;switchonyourcode;dependency-injection;aspnetcore</PackageTags>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
