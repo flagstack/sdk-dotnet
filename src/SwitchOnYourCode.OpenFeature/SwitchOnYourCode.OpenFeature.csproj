@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <PackageId>SwitchOnYourCode.OpenFeature</PackageId>
-    <Description>OpenFeature provider for the SwitchOnYourCode .NET SDK.</Description>
+    <Description>OpenFeature provider for the Switch On Your Code .NET SDK.</Description>
     <PackageTags>feature-flags;switchonyourcode;openfeature</PackageTags>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
